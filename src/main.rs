@@ -40,10 +40,10 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         // Render
         println!("Player");
-        player_table.render()?;
+        player_table.render(true)?;
         println!();
         println!("Computer");
-        com_table.render()?;
+        com_table.render(false)?;
     }
 
     Ok(())

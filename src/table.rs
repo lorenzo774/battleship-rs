@@ -1,5 +1,5 @@
 use crate::{
-    config::{ALPHABET, SHIP},
+    config::{ALPHABET, BG_CHAR, SHIP},
     ship::{Ship, ShipType},
     space::{Alignment, Vec2},
     utils::print_color,
@@ -23,7 +23,7 @@ impl Table {
         for i in 0..size {
             matrix.push(Vec::new());
             for _ in 0..size {
-                matrix[i].push('-');
+                matrix[i].push(BG_CHAR);
             }
         }
 
@@ -35,8 +35,8 @@ impl Table {
     }
 
     /// Check if the ship is out of boundaries
-    pub fn ship_out_of_boundaries(&self, ship: &Ship, aligment: &Alignment) -> bool {
-        match aligment {
+    pub fn ship_out_of_boundaries(&self, ship: &Ship) -> bool {
+        match ship.aligment {
             Alignment::Vertical => {
                 ship.pos.y + ship.size - 1 >= self.size || ship.pos.x >= self.size
             }
@@ -60,31 +60,48 @@ impl Table {
             ShipType::TorpedoBoat => Ship::new(2),
             ShipType::Submarine => Ship::new(1),
         };
+        new_ship.aligment = aligment;
         new_ship.pos = pos;
-        if self.ship_out_of_boundaries(&new_ship, &aligment) {
+        if self.ship_out_of_boundaries(&new_ship) {
             return Err(format!(
                 "The ship is out of boundaries ({:?})",
                 new_ship.pos
             ));
         }
         // Continue if the ship is in the table
-        self.insert_ship_to_matrix(&new_ship, &aligment);
         self.ships.push(new_ship);
         Ok(())
     }
 
-    // Here the ship is supposed to be in boundaries
-    fn insert_ship_to_matrix(&mut self, ship: &Ship, aligment: &Alignment) {
-        for i in 0..ship.size {
-            match aligment {
-                Alignment::Vertical => self.matrix[ship.pos.x][ship.pos.y + i] = SHIP,
-                Alignment::Horizontal => self.matrix[ship.pos.x + i][ship.pos.y] = SHIP,
+    // Clean the matrix
+    pub fn reset_matrix(&mut self) {
+        for i in 0..self.matrix.len() {
+            for j in 0..self.matrix[i].len() {
+                self.matrix[i][j] = BG_CHAR;
+            }
+        }
+    }
+
+    // Here the ships is supposed to be in boundaries
+    fn insert_ships_to_matrix(&mut self) {
+        for ship in &self.ships {
+            for i in 0..ship.size {
+                match ship.aligment {
+                    Alignment::Vertical => self.matrix[ship.pos.x][ship.pos.y + i] = SHIP,
+                    Alignment::Horizontal => self.matrix[ship.pos.x + i][ship.pos.y] = SHIP,
+                }
             }
         }
     }
 
     /// Print the table to the console
-    pub fn render(&self) -> Result<(), Error> {
+    pub fn render(&mut self, ships: bool) -> Result<(), Error> {
+        self.reset_matrix();
+
+        if ships {
+            self.insert_ships_to_matrix();
+        }
+
         execute!(stdout(), Print("x "))?;
         for k in 1..self.matrix.len() + 1 {
             print_color(format!("{} ", k), Color::Blue)?;
