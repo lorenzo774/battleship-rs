@@ -1,19 +1,20 @@
 use crate::{
-    config::{ALPHABET, BG_CHAR, SHIP},
+    config::{ALPHABET, BG_CHAR, GREY, HIT, SHIP, STUNK},
     ship::{Ship, ShipType},
     space::{Alignment, Vec2},
     utils::print_color,
 };
 use crossterm::{
+    cursor::MoveTo,
     execute,
     style::{Color, Print},
 };
 use std::io::{stdout, Error};
 
 pub struct Table {
-    pub size: usize,
     pub matrix: Vec<Vec<char>>,
     pub ships: Vec<Ship>,
+    pub size: usize,
 }
 impl Table {
     /// Generate a new matrix for the table and a ships vector
@@ -86,9 +87,23 @@ impl Table {
     fn insert_ships_to_matrix(&mut self) {
         for ship in &self.ships {
             for i in 0..ship.size {
-                match ship.aligment {
-                    Alignment::Vertical => self.matrix[ship.pos.x][ship.pos.y + i] = SHIP,
-                    Alignment::Horizontal => self.matrix[ship.pos.x + i][ship.pos.y] = SHIP,
+                if ship.is_stunk() {
+                    self.matrix[ship.pos.x][ship.pos.y + i] = STUNK;
+                } else {
+                    match ship.aligment {
+                        Alignment::Vertical => {
+                            self.matrix[ship.pos.x][ship.pos.y + i] = match ship.hit[i] {
+                                true => HIT,
+                                false => SHIP,
+                            };
+                        }
+                        Alignment::Horizontal => {
+                            self.matrix[ship.pos.x + i][ship.pos.y] = match ship.hit[i] {
+                                true => HIT,
+                                false => SHIP,
+                            };
+                        }
+                    }
                 }
             }
         }
@@ -101,7 +116,6 @@ impl Table {
         if ships {
             self.insert_ships_to_matrix();
         }
-
         execute!(stdout(), Print("x "))?;
         for k in 1..self.matrix.len() + 1 {
             print_color(format!("{} ", k), Color::Blue)?;
@@ -112,6 +126,7 @@ impl Table {
             for j in 0..self.matrix[i].len() {
                 let color = match self.matrix[i][j] {
                     SHIP => Color::DarkMagenta,
+                    HIT => GREY,
                     _ => Color::Cyan,
                 };
                 print_color(format!("{} ", self.matrix[i][j]), color)?;
