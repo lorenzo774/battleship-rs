@@ -5,7 +5,6 @@ use crate::{
     utils::print_color,
 };
 use crossterm::{
-    cursor::MoveTo,
     execute,
     style::{Color, Print},
 };
@@ -84,27 +83,39 @@ impl Table {
     }
 
     // Here the ships is supposed to be in boundaries
-    fn insert_ships_to_matrix(&mut self) {
+    fn insert_ships_to_matrix(&mut self, ships: bool) {
         for ship in &self.ships {
             for i in 0..ship.size {
                 if ship.is_stunk() {
                     self.matrix[ship.pos.x][ship.pos.y + i] = STUNK;
-                } else {
-                    match ship.aligment {
-                        Alignment::Vertical => {
-                            self.matrix[ship.pos.x][ship.pos.y + i] = match ship.hit[i] {
-                                true => HIT,
-                                false => SHIP,
-                            };
-                        }
-                        Alignment::Horizontal => {
-                            self.matrix[ship.pos.x + i][ship.pos.y] = match ship.hit[i] {
-                                true => HIT,
-                                false => SHIP,
-                            };
-                        }
-                    }
+                    continue;
                 }
+                match ship.aligment {
+                    Alignment::Vertical => {
+                        self.matrix[ship.pos.x][ship.pos.y + i] = match ship.hit[i] {
+                            true => HIT,
+                            false => {
+                                if ships {
+                                    SHIP
+                                } else {
+                                    BG_CHAR
+                                }
+                            }
+                        };
+                    }
+                    Alignment::Horizontal => {
+                        self.matrix[ship.pos.x + i][ship.pos.y] = match ship.hit[i] {
+                            true => HIT,
+                            false => {
+                                if ships {
+                                    SHIP
+                                } else {
+                                    BG_CHAR
+                                }
+                            }
+                        };
+                    }
+                };
             }
         }
     }
@@ -113,9 +124,7 @@ impl Table {
     pub fn render(&mut self, ships: bool) -> Result<(), Error> {
         self.reset_matrix();
 
-        if ships {
-            self.insert_ships_to_matrix();
-        }
+        self.insert_ships_to_matrix(ships);
         execute!(stdout(), Print("x "))?;
         for k in 1..self.matrix.len() + 1 {
             print_color(format!("{} ", k), Color::Blue)?;
