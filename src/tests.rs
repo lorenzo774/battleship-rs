@@ -2,7 +2,7 @@
 pub mod tests {
     use crate::models::ship::Ship;
     use crate::models::space::{Alignment, Vec2};
-    use crate::Table;
+    use crate::models::table::Table;
     use std::error::Error;
 
     #[test]

@@ -1,1 +1,2 @@
-pub mod input_handler;
+pub mod game_manager;
+pub mod input_manager;
