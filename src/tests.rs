@@ -1,7 +1,7 @@
 #[cfg(test)]
 pub mod tests {
-    use crate::ship::Ship;
-    use crate::space::{Alignment, Vec2};
+    use crate::models::ship::Ship;
+    use crate::models::space::{Alignment, Vec2};
     use crate::Table;
     use std::error::Error;
 

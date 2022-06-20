@@ -1,7 +1,7 @@
 use crate::{
     config::{ALPHABET, BG_CHAR, GREY, HIT, SHIP, STUNK},
-    ship::{Ship, ShipType},
-    space::{Alignment, Vec2},
+    models::ship::{Ship, ShipType},
+    models::space::{Alignment, Vec2},
     utils::print_color,
 };
 use crossterm::{

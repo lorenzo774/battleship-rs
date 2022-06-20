@@ -3,22 +3,21 @@ use crossterm::{
     execute,
     terminal::*,
 };
-use ship::ShipType;
+use models::ship::ShipType;
+use std::error::Error;
 use std::io::stdout;
-use std::{error::Error, process};
 
 mod config;
-mod inputs;
-mod ship;
-mod space;
-mod table;
+mod handlers;
+mod lib;
+mod models;
 mod utils;
 
 use config::*;
-use inputs::get_input;
-use space::{Alignment, Vec2};
-use table::Table;
-use utils::{print_and_clear, select_char};
+use handlers::input_handler::handle_inputs;
+use models::space::{Alignment, Vec2};
+use models::table::Table;
+use utils::select_char;
 
 // tests
 mod tests;
@@ -57,36 +56,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         // Input handling
         println!();
-        match get_input()? {
-            // Exit
-            'q' => {
-                print_and_clear("Bye 👋\n".to_string())?;
-                process::exit(0)
-            }
-            ' ' => print_and_clear("Nothing special is pressed".to_string())?,
-            input => {
-                print_and_clear("Move inputs".to_string())?;
-                match input {
-                    'j' => select_pos.y += 1,
-                    'k' => select_pos.y -= 1,
-                    'h' => select_pos.x -= 2,
-                    'l' => select_pos.x += 2,
-                    _ => (),
-                };
-                if select_pos.x > 2 * TABLE_SIZE {
-                    select_pos.x = 2 * TABLE_SIZE;
-                }
-                if select_pos.x < 2 {
-                    select_pos.x = 2;
-                }
-                if select_pos.y < 15 {
-                    select_pos.y = 15;
-                }
-                if select_pos.y > 14 + TABLE_SIZE {
-                    select_pos.y = 14 + TABLE_SIZE;
-                }
-            }
-        };
+        handle_inputs(&mut select_pos)?;
     }
 
     Ok(())

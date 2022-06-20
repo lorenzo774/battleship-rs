@@ -11,6 +11,9 @@ pub fn get_input() -> crossterm::Result<char> {
     if event == Event::Key(KeyCode::Esc.into()) || event == Event::Key(KeyCode::Char('q').into()) {
         return Ok('q');
     }
+    if event == Event::Key(KeyCode::Enter.into()) {
+        return Ok('E');
+    }
     for i in KEYS {
         if event == Event::Key(KeyCode::Char(i).into()) {
             return Ok(i);

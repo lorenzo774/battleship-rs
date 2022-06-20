@@ -1,4 +1,4 @@
-use crate::space::{Alignment, Vec2};
+use crate::models::space::{Alignment, Vec2};
 
 pub struct Ship {
     pub pos: Vec2<usize>,

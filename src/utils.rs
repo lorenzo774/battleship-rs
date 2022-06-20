@@ -1,12 +1,12 @@
 use crossterm::{
-    cursor::{MoveTo, RestorePosition, SavePosition},
+    cursor::MoveTo,
     execute,
     style::{Color, Print, ResetColor, SetBackgroundColor, SetForegroundColor},
     terminal::*,
 };
 use std::io::{stdout, Error};
 
-use crate::space::Vec2;
+use crate::models::space::Vec2;
 
 pub fn print_color(msg: String, color: Color) -> Result<(), Error> {
     execute!(stdout(), SetForegroundColor(color), Print(msg), ResetColor)?;
