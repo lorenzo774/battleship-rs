@@ -7,7 +7,7 @@ pub mod tests {
 
     #[test]
     pub fn insert_ships() -> Result<(), Box<dyn Error>> {
-        let table = Table::new(20);
+        let table = Table::new(Vec2::new(0, 0), 20);
         let mut ship = Ship::new(5);
         ship.pos = Vec2::new(14, 20);
         ship.aligment = Alignment::Horizontal;

@@ -6,7 +6,7 @@ use crossterm::terminal::{Clear, ClearType};
 use std::error::Error;
 
 use crate::config::*;
-use crate::handlers::input_manager::handle_inputs;
+use crate::handlers::game_logic::handle_insertship_inputs;
 use crate::models::{space::Vec2, state::GameState, table::Table};
 use crate::utils::{print_and_clear, select_char};
 
@@ -19,8 +19,8 @@ pub struct Game {
 impl Game {
     pub fn new() -> Game {
         Game {
-            player_table: Table::new(TABLE_SIZE),
-            com_table: Table::new(TABLE_SIZE),
+            player_table: Table::new(Vec2::new(2, 2), TABLE_SIZE),
+            com_table: Table::new(Vec2::new(2, 15), TABLE_SIZE),
             select_pos: Vec2::new(0, 0),
             state: GameState::InsertShips,
         }
@@ -29,7 +29,6 @@ impl Game {
     pub fn start(&mut self) -> Result<(), Box<dyn Error>> {
         // Set the first state
         self.change_state(GameState::InsertShips);
-
         // Clear screen
         execute!(stdout(), Clear(ClearType::All))?;
         Ok(())
@@ -39,16 +38,15 @@ impl Game {
         execute!(stdout(), Hide, MoveTo(0, 0))?;
         // Render
         println!("Player");
-        self.player_table.render(true)?;
+        self.player_table.draw(true)?;
         println!();
         println!("Computer");
-        self.com_table.render(false)?;
-        // Player pos
+        self.com_table.draw(false)?;
+        // Select char
         select_char(crossterm::style::Color::Yellow, &self.select_pos)?;
         execute!(stdout(), MoveTo(0, 30))?;
         // Input handling
         println!();
-        handle_inputs(&mut self.select_pos)?;
         self.handle_state()?;
         Ok(())
     }
@@ -57,17 +55,23 @@ impl Game {
         // Every change calls a function to handle the change of state
         match new_state {
             GameState::InsertShips => self.start_insert_ships(),
-            GameState::Attack => todo!(),
+            GameState::Attack => self.start_attack_state(),
             GameState::Win => todo!(),
             GameState::Loose => todo!(),
         }
         self.state = new_state;
     }
 
-    pub fn handle_state(&self) -> Result<(), Box<dyn Error>> {
+    pub fn handle_state(&mut self) -> Result<(), Box<dyn Error>> {
         match &self.state {
-            GameState::InsertShips => print_and_clear("Insert ships state".to_string())?,
-            GameState::Attack => todo!(),
+            GameState::InsertShips => {
+                print_and_clear("Insert ships state".to_string())?;
+                handle_insertship_inputs(&mut self.player_table, &mut self.select_pos)?;
+            }
+            GameState::Attack => {
+                print_and_clear("Attack state".to_string())?;
+                handle_insertship_inputs(&mut self.com_table, &mut self.select_pos)?;
+            }
             GameState::Win => todo!(),
             GameState::Loose => todo!(),
         };
@@ -76,5 +80,9 @@ impl Game {
 
     fn start_insert_ships(&mut self) {
         self.select_pos = Vec2::new(2, 2);
+    }
+
+    fn start_attack_state(&mut self) {
+        self.select_pos = Vec2::new(2, 15);
     }
 }

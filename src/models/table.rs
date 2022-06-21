@@ -10,15 +10,19 @@ use crossterm::{
 };
 use std::io::{stdout, Error};
 
+use super::rect::Rect;
+
 pub struct Table {
     pub matrix: Vec<Vec<char>>,
     pub ships: Vec<Ship>,
+    pub rect: Rect,
     pub size: usize,
 }
 impl Table {
     /// Generate a new matrix for the table and a ships vector
-    pub fn new(size: usize) -> Table {
+    pub fn new(pos: Vec2<usize>, size: usize) -> Table {
         let mut matrix: Vec<Vec<char>> = Vec::new();
+        let rect = Rect::new(pos, size * 2, size);
 
         for i in 0..size {
             matrix.push(Vec::new());
@@ -30,6 +34,7 @@ impl Table {
         Table {
             size,
             matrix,
+            rect,
             ships: Vec::new(),
         }
     }
@@ -87,12 +92,12 @@ impl Table {
         for ship in &self.ships {
             for i in 0..ship.size {
                 if ship.is_stunk() {
-                    self.matrix[ship.pos.x][ship.pos.y + i] = STUNK;
+                    self.matrix[ship.pos.y][ship.pos.x + i] = STUNK;
                     continue;
                 }
                 match ship.aligment {
                     Alignment::Vertical => {
-                        self.matrix[ship.pos.x][ship.pos.y + i] = match ship.hit[i] {
+                        self.matrix[ship.pos.y + i][ship.pos.x] = match ship.hit[i] {
                             true => HIT,
                             false => {
                                 if ships {
@@ -104,7 +109,7 @@ impl Table {
                         };
                     }
                     Alignment::Horizontal => {
-                        self.matrix[ship.pos.x + i][ship.pos.y] = match ship.hit[i] {
+                        self.matrix[ship.pos.y][ship.pos.x + i] = match ship.hit[i] {
                             true => HIT,
                             false => {
                                 if ships {
@@ -121,7 +126,7 @@ impl Table {
     }
 
     /// Print the table to the console
-    pub fn render(&mut self, ships: bool) -> Result<(), Error> {
+    pub fn draw(&mut self, ships: bool) -> Result<(), Error> {
         self.reset_matrix();
 
         self.insert_ships_to_matrix(ships);
