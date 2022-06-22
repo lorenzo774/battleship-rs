@@ -1,4 +1,4 @@
-use crate::utils::print_and_clear;
+use crate::lib::graphics::print_and_clear;
 use crossterm::event::{read, Event, KeyCode};
 
 pub fn get_input() -> crossterm::Result<char> {

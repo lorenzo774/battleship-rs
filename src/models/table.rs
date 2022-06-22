@@ -1,8 +1,8 @@
 use crate::{
-    config::{ALPHABET, BG_CHAR, GREY, HIT, SHIP, STUNK},
+    lib::graphics::print_color,
     models::ship::{Ship, ShipType},
     models::space::{Alignment, Vec2},
-    utils::print_color,
+    settings::{ALPHABET, BG_CHAR, GREY, HIT, SHIP, STUNK},
 };
 use crossterm::{
     execute,
@@ -95,30 +95,18 @@ impl Table {
                     self.matrix[ship.pos.y][ship.pos.x + i] = STUNK;
                     continue;
                 }
-                match ship.aligment {
-                    Alignment::Vertical => {
-                        self.matrix[ship.pos.y + i][ship.pos.x] = match ship.hit[i] {
-                            true => HIT,
-                            false => {
-                                if ships {
-                                    SHIP
-                                } else {
-                                    BG_CHAR
-                                }
-                            }
-                        };
-                    }
-                    Alignment::Horizontal => {
-                        self.matrix[ship.pos.y][ship.pos.x + i] = match ship.hit[i] {
-                            true => HIT,
-                            false => {
-                                if ships {
-                                    SHIP
-                                } else {
-                                    BG_CHAR
-                                }
-                            }
-                        };
+                let pos = match ship.aligment {
+                    Alignment::Vertical => Vec2::new(ship.pos.x, ship.pos.y + i),
+                    Alignment::Horizontal => Vec2::new(ship.pos.x + i, ship.pos.y),
+                };
+                self.matrix[pos.y][pos.x] = match ship.hit[i] {
+                    true => HIT,
+                    false => {
+                        if ships {
+                            SHIP
+                        } else {
+                            BG_CHAR
+                        }
                     }
                 };
             }

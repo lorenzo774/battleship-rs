@@ -7,6 +7,7 @@ pub const SHIP: char = '■';
 pub const HIT: char = '#';
 pub const STUNK: char = 'X';
 pub const TABLE_SIZE: usize = 10;
+pub const TITLE: &str = "Battleship-rs";
 
 //
 // Utils

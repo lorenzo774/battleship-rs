@@ -1,20 +1,22 @@
-use std::io::stdout;
-
 use crossterm::cursor::{Hide, MoveTo};
 use crossterm::execute;
 use crossterm::terminal::{Clear, ClearType};
 use std::error::Error;
+use std::io::stdout;
 
-use crate::config::*;
-use crate::handlers::game_logic::handle_insertship_inputs;
+use super::game_logic::handle_insertship_inputs;
+use super::ui_manager::UI;
+
+use crate::lib::graphics::{print_and_clear, select_char};
 use crate::models::{space::Vec2, state::GameState, table::Table};
-use crate::utils::{print_and_clear, select_char};
+use crate::settings::*;
 
 pub struct Game {
     player_table: Table,
     com_table: Table,
     select_pos: Vec2<usize>,
     state: GameState,
+    ui: UI,
 }
 impl Game {
     pub fn new() -> Game {
@@ -23,6 +25,7 @@ impl Game {
             com_table: Table::new(Vec2::new(2, 15), TABLE_SIZE),
             select_pos: Vec2::new(0, 0),
             state: GameState::InsertShips,
+            ui: UI::new(Vec2::new(40, 0), 10, 10),
         }
     }
 
@@ -36,18 +39,25 @@ impl Game {
 
     pub fn update(&mut self) -> Result<(), Box<dyn Error>> {
         execute!(stdout(), Hide, MoveTo(0, 0))?;
-        // Render
+
+        // Render tables
         println!("Player");
         self.player_table.draw(true)?;
         println!();
         println!("Computer");
         self.com_table.draw(false)?;
-        // Select char
         select_char(crossterm::style::Color::Yellow, &self.select_pos)?;
+
+        // UI
+        self.ui.draw_title()?;
+
+        // Move to debug ui
         execute!(stdout(), MoveTo(0, 30))?;
+
         // Input handling
         println!();
         self.handle_state()?;
+
         Ok(())
     }
 

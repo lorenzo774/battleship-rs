@@ -24,4 +24,9 @@ impl Rect {
             point.y = self.pos.y + self.height - 1;
         }
     }
+
+    pub fn convert_to_rect_pos(pos: &Vec2<usize>, rect: &Rect) -> Option<Vec2<usize>> {
+        let table_pos = Vec2::new((pos.x - rect.pos.x) / 2, pos.y - rect.pos.y);
+        Some(table_pos)
+    }
 }

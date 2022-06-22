@@ -6,8 +6,10 @@ use crate::models::rect::Rect;
 use crate::models::ship::ShipType;
 use crate::models::space::Alignment;
 use crate::models::table::Table;
-use crate::utils::convert_to_rect_pos;
-use crate::{lib::inputs::get_input, models::space::Vec2, utils::print_and_clear};
+use crate::{
+    lib::{graphics::print_and_clear, inputs::get_input},
+    models::space::Vec2,
+};
 use std::{error::Error, process};
 
 pub fn handle_insertship_inputs(
@@ -32,7 +34,7 @@ fn handle_insert_new_ship(
     select_pos: &mut Vec2<usize>,
     table: &mut Table,
 ) -> Result<(), Box<dyn Error>> {
-    let table_pos = match convert_to_rect_pos(&select_pos, &table.rect) {
+    let table_pos = match Rect::convert_to_rect_pos(&select_pos, &table.rect) {
         Some(rect_pos) => {
             print_and_clear(format!("Select position = {:?}", rect_pos))?;
             rect_pos
@@ -43,9 +45,13 @@ fn handle_insert_new_ship(
         }
     };
 
-    table.insert_ship(ShipType::Aisle, table_pos, Alignment::Horizontal)?;
+    let res = table.insert_ship(ShipType::Aisle, table_pos, Alignment::Horizontal);
+    match res {
+        Ok(_) => {}
+        Err(msg) => print_and_clear(msg)?,
+    }
 
-    Ok(print_and_clear("Enter pressed".to_string())?)
+    Ok(())
 }
 
 fn handle_movement(

@@ -1,10 +1,9 @@
 use std::error::Error;
 
-mod config;
 mod handlers;
 mod lib;
 mod models;
-mod utils;
+mod settings;
 
 use handlers::game_manager::*;
 // tests
