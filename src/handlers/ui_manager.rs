@@ -1,6 +1,6 @@
 use crate::lib::graphics::{print_clear_color_at, print_color_at};
 use crate::models::rect::Rect;
-use crate::models::ship::ShipType;
+use crate::models::ship::Ship;
 use crate::models::space::{Alignment, Vec2};
 use crate::settings::{SHIP, TITLE};
 
@@ -23,7 +23,7 @@ impl UI {
         Ok(())
     }
 
-    pub fn draw_ship(&self, ship: &ShipType) -> Result<(), Box<dyn Error>> {
+    pub fn draw_ship(&self, ship: &Ship) -> Result<(), Box<dyn Error>> {
         let start_pos = Vec2::new(self.rect.pos.x + (self.rect.width / 2), self.rect.pos.y + 1);
 
         for i in 0..ship.size() {

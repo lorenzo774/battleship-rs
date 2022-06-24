@@ -10,7 +10,7 @@ use super::ui_manager::UI;
 use crate::lib::graphics::{clear_screen, print_and_clear, select_char};
 use crate::lib::inputs::get_input;
 use crate::models::rect::Rect;
-use crate::models::ship::ShipType;
+use crate::models::ship::Ship;
 use crate::models::space::Alignment;
 use crate::models::{space::Vec2, state::GameState, table::Table};
 use crate::settings::*;
@@ -81,7 +81,7 @@ impl Game {
     pub fn handle_state(&mut self) -> Result<(), Box<dyn Error>> {
         match &mut self.state {
             GameState::InsertShips => {
-                self.ui.draw_ship(&ShipType::Aisle)?;
+                self.ui.draw_ship(&Ship::Aisle)?;
                 match get_input()? {
                     // Exit
                     'q' => {
@@ -133,7 +133,7 @@ impl Game {
         let res =
             &self
                 .player_table
-                .insert_ship(ShipType::TorpedoBoat, table_pos, &self.cur_orientation);
+                .insert_ship(Ship::TorpedoBoat, table_pos, &self.cur_orientation);
 
         match res {
             Ok(_) => {}

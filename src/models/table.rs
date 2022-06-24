@@ -1,6 +1,6 @@
 use crate::{
     lib::graphics::print_color,
-    models::ship::{Ship, ShipType},
+    models::ship::Ship,
     models::space::{Alignment, Vec2},
     settings::{ALPHABET, BG_CHAR, GREY, HIT, SHIP, STUNK},
 };
@@ -14,7 +14,6 @@ use super::rect::Rect;
 
 pub struct Table {
     pub matrix: Vec<Vec<char>>,
-    pub ships: Vec<Ship>,
     pub rect: Rect,
     pub size: i32,
 }
@@ -31,30 +30,53 @@ impl Table {
             }
         }
 
-        Table {
-            size,
-            matrix,
-            rect,
-            ships: Vec::new(),
+        Table { size, matrix, rect }
+    }
+
+    pub fn ship_out_of_boundaries(
+        &self,
+        ship: &Ship,
+        pos: &Vec2<i32>,
+        aligment: &Alignment,
+    ) -> bool {
+        match aligment {
+            Alignment::Vertical => pos.y + ship.size() - 1 >= self.size || pos.x >= self.size,
+            Alignment::Horizontal => pos.x + ship.size() - 1 >= self.size || pos.y >= self.size,
         }
     }
 
-    /// Check if the ship is out of boundaries
-    pub fn ship_out_of_boundaries(&self, ship: &Ship) -> bool {
-        match ship.aligment {
+    fn empty_for_new_ship(&self, ship: &Ship, pos: &Vec2<i32>, aligment: &Alignment) -> bool {
+        match aligment {
             Alignment::Vertical => {
-                ship.pos.y + ship.size - 1 >= self.size || ship.pos.x >= self.size
+                for i in -1..ship.size() + 1 {
+                    for j in -1..2 {
+                        // print_and_clear(format!("i = {}, j = {} yes = {}", i, j, pos.y + i < 0));
+                        if pos.y + i < 0 || pos.y + i >= self.size {
+                            continue;
+                        }
+                        if pos.x + j < 0 || pos.x + j >= self.size {
+                            continue;
+                        }
+                        if self.matrix[(pos.y + i) as usize][(pos.x + j) as usize] == SHIP {
+                            return false;
+                        }
+                    }
+                }
             }
             Alignment::Horizontal => {
-                ship.pos.x + ship.size - 1 >= self.size || ship.pos.y >= self.size
-            }
-        }
-    }
-
-    pub fn empty_for_ship(&self, new_ship: &Ship) -> bool {
-        for ship in &self.ships {
-            if ship.touch(new_ship) {
-                return false;
+                for i in -1..ship.size() + 1 {
+                    for j in -1..2 {
+                        if pos.y + j < 0 || pos.y + j >= self.size {
+                            continue;
+                        }
+                        if pos.x + i < 0 || pos.x + i >= self.size {
+                            continue;
+                        }
+                        if self.matrix[((pos.y + j) as usize)][(pos.x + i) as usize] == SHIP {
+                            return false;
+                        }
+                    }
+                }
             }
         }
         true
@@ -63,67 +85,34 @@ impl Table {
     /// Insert a new ship into the table by a ship type
     pub fn insert_ship(
         &mut self,
-        ship: ShipType,
+        ship: Ship,
         pos: Vec2<i32>,
         aligment: &Alignment,
-    ) -> Result<(), String> {
-        let mut new_ship = Ship::new(ship);
-        new_ship.aligment = aligment.clone();
-        new_ship.pos = pos;
-        if self.ship_out_of_boundaries(&new_ship) {
-            return Err(format!(
-                "The ship is out of boundaries ({:?})",
-                new_ship.pos
-            ));
+    ) -> Result<bool, String> {
+        if self.ship_out_of_boundaries(&ship, &pos, &aligment) {
+            return Ok(false);
         }
-        if !self.empty_for_ship(&new_ship) {
-            return Err(format!("The ship touches another ship"));
+        if !self.empty_for_new_ship(&ship, &pos, &aligment) {
+            return Ok(false);
         }
-        // Continue if the ship is in the table
-        self.ships.push(new_ship);
-        Ok(())
-    }
 
-    // Clean the matrix
-    pub fn reset_matrix(&mut self) {
-        for i in 0..self.matrix.len() {
-            for j in 0..self.matrix[i].len() {
-                self.matrix[i][j] = BG_CHAR;
-            }
-        }
-    }
-
-    // Here the ships is supposed to be in boundaries
-    fn insert_ships_to_matrix(&mut self, ships: bool) {
-        for ship in &self.ships {
-            for i in 0..ship.size {
-                if ship.is_stunk() {
-                    self.matrix[ship.pos.y as usize][ship.pos.x as usize + i as usize] = STUNK;
-                    continue;
+        match aligment {
+            Alignment::Vertical => {
+                for i in 0..ship.size() {
+                    self.matrix[pos.y as usize + i as usize][pos.x as usize] = SHIP;
                 }
-                let pos = match ship.aligment {
-                    Alignment::Vertical => Vec2::new(ship.pos.x, ship.pos.y + i),
-                    Alignment::Horizontal => Vec2::new(ship.pos.x + i, ship.pos.y),
-                };
-                self.matrix[pos.y as usize][pos.x as usize] = match ship.hit[i as usize] {
-                    true => HIT,
-                    false => {
-                        if ships {
-                            SHIP
-                        } else {
-                            BG_CHAR
-                        }
-                    }
-                };
+            }
+            Alignment::Horizontal => {
+                for i in 0..ship.size() {
+                    self.matrix[pos.y as usize][pos.x as usize + i as usize] = SHIP;
+                }
             }
         }
+        Ok(true)
     }
 
     /// Print the table to the console
     pub fn draw(&mut self, ships: bool) -> Result<(), Error> {
-        self.reset_matrix();
-
-        self.insert_ships_to_matrix(ships);
         execute!(stdout(), Print("x "))?;
         for k in 1..self.matrix.len() + 1 {
             print_color(format!("{} ", k), Color::Blue)?;
@@ -132,6 +121,10 @@ impl Table {
         for i in 0..self.matrix.len() {
             print_color(format!("{} ", ALPHABET[i]), Color::Green)?;
             for j in 0..self.matrix[i].len() {
+                if !ships && self.matrix[i][j] == SHIP {
+                    print_color("- ".to_string(), Color::Cyan)?;
+                    continue;
+                }
                 let color = match self.matrix[i][j] {
                     SHIP => Color::DarkMagenta,
                     HIT => GREY,
