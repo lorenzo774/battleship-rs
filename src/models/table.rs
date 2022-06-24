@@ -16,18 +16,18 @@ pub struct Table {
     pub matrix: Vec<Vec<char>>,
     pub ships: Vec<Ship>,
     pub rect: Rect,
-    pub size: usize,
+    pub size: i32,
 }
 impl Table {
     /// Generate a new matrix for the table and a ships vector
-    pub fn new(pos: Vec2<usize>, size: usize) -> Table {
+    pub fn new(pos: Vec2<i32>, size: i32) -> Table {
         let mut matrix: Vec<Vec<char>> = Vec::new();
         let rect = Rect::new(pos, size * 2, size);
 
         for i in 0..size {
             matrix.push(Vec::new());
             for _ in 0..size {
-                matrix[i].push(BG_CHAR);
+                matrix[i as usize].push(BG_CHAR);
             }
         }
 
@@ -51,27 +51,33 @@ impl Table {
         }
     }
 
+    pub fn empty_for_ship(&self, new_ship: &Ship) -> bool {
+        for ship in &self.ships {
+            if ship.touch(new_ship) {
+                return false;
+            }
+        }
+        true
+    }
+
     /// Insert a new ship into the table by a ship type
     pub fn insert_ship(
         &mut self,
         ship: ShipType,
-        pos: Vec2<usize>,
-        aligment: Alignment,
+        pos: Vec2<i32>,
+        aligment: &Alignment,
     ) -> Result<(), String> {
-        let mut new_ship = match ship {
-            ShipType::Aisle => Ship::new(5),
-            ShipType::Battleship => Ship::new(4),
-            ShipType::Cruiser => Ship::new(3),
-            ShipType::TorpedoBoat => Ship::new(2),
-            ShipType::Submarine => Ship::new(1),
-        };
-        new_ship.aligment = aligment;
+        let mut new_ship = Ship::new(ship);
+        new_ship.aligment = aligment.clone();
         new_ship.pos = pos;
         if self.ship_out_of_boundaries(&new_ship) {
             return Err(format!(
                 "The ship is out of boundaries ({:?})",
                 new_ship.pos
             ));
+        }
+        if !self.empty_for_ship(&new_ship) {
+            return Err(format!("The ship touches another ship"));
         }
         // Continue if the ship is in the table
         self.ships.push(new_ship);
@@ -92,14 +98,14 @@ impl Table {
         for ship in &self.ships {
             for i in 0..ship.size {
                 if ship.is_stunk() {
-                    self.matrix[ship.pos.y][ship.pos.x + i] = STUNK;
+                    self.matrix[ship.pos.y as usize][ship.pos.x as usize + i as usize] = STUNK;
                     continue;
                 }
                 let pos = match ship.aligment {
                     Alignment::Vertical => Vec2::new(ship.pos.x, ship.pos.y + i),
                     Alignment::Horizontal => Vec2::new(ship.pos.x + i, ship.pos.y),
                 };
-                self.matrix[pos.y][pos.x] = match ship.hit[i] {
+                self.matrix[pos.y as usize][pos.x as usize] = match ship.hit[i as usize] {
                     true => HIT,
                     false => {
                         if ships {

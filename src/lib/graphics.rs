@@ -13,7 +13,7 @@ pub fn print_color(msg: String, color: Color) -> Result<(), Error> {
     Ok(())
 }
 
-pub fn select_char(color: Color, pos: &Vec2<usize>) -> Result<(), Error> {
+pub fn select_char(color: Color, pos: &Vec2<i32>) -> Result<(), Error> {
     execute!(
         stdout(),
         MoveTo(pos.x as u16, pos.y as u16),
@@ -30,19 +30,30 @@ pub fn print_and_clear(msg: String) -> Result<(), Error> {
     Ok(())
 }
 
-pub fn print_color_at(
-    pos: &Vec2<usize>,
-    msg: String,
-    color: Color,
-    bg: Color,
-) -> Result<(), Error> {
+pub fn print_color_at(pos: &Vec2<i32>, msg: String, color: Color) -> Result<(), Error> {
     execute!(
         stdout(),
         MoveTo(pos.x as u16, pos.y as u16),
         SetForegroundColor(color),
-        SetBackgroundColor(bg),
         Print(msg),
         ResetColor
     )?;
+    Ok(())
+}
+
+pub fn print_clear_color_at(pos: &Vec2<i32>, msg: String, color: Color) -> Result<(), Error> {
+    execute!(
+        stdout(),
+        MoveTo(pos.x as u16, pos.y as u16),
+        SetForegroundColor(color),
+        Clear(ClearType::CurrentLine),
+        Print(msg),
+        ResetColor
+    )?;
+    Ok(())
+}
+
+pub fn clear_screen() -> Result<(), Error> {
+    execute!(stdout(), MoveTo(0, 0), Clear(ClearType::All))?;
     Ok(())
 }

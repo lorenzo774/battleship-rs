@@ -3,20 +3,25 @@ use crossterm::execute;
 use crossterm::terminal::{Clear, ClearType};
 use std::error::Error;
 use std::io::stdout;
+use std::process;
 
-use super::game_logic::handle_insertship_inputs;
 use super::ui_manager::UI;
 
-use crate::lib::graphics::{print_and_clear, select_char};
+use crate::lib::graphics::{clear_screen, print_and_clear, select_char};
+use crate::lib::inputs::get_input;
+use crate::models::rect::Rect;
+use crate::models::ship::ShipType;
+use crate::models::space::Alignment;
 use crate::models::{space::Vec2, state::GameState, table::Table};
 use crate::settings::*;
 
 pub struct Game {
     player_table: Table,
     com_table: Table,
-    select_pos: Vec2<usize>,
+    select_pos: Vec2<i32>,
     state: GameState,
     ui: UI,
+    cur_orientation: Alignment,
 }
 impl Game {
     pub fn new() -> Game {
@@ -26,6 +31,7 @@ impl Game {
             select_pos: Vec2::new(0, 0),
             state: GameState::InsertShips,
             ui: UI::new(Vec2::new(40, 0), 10, 10),
+            cur_orientation: Alignment::Horizontal,
         }
     }
 
@@ -73,18 +79,66 @@ impl Game {
     }
 
     pub fn handle_state(&mut self) -> Result<(), Box<dyn Error>> {
-        match &self.state {
+        match &mut self.state {
             GameState::InsertShips => {
-                print_and_clear("Insert ships state".to_string())?;
-                handle_insertship_inputs(&mut self.player_table, &mut self.select_pos)?;
+                self.ui.draw_ship(&ShipType::Aisle)?;
+                match get_input()? {
+                    // Exit
+                    'q' => {
+                        clear_screen()?;
+                        print_and_clear("Bye 👋\n".to_string())?;
+                        process::exit(0)
+                    }
+                    'E' => self.handle_insert_new_ship()?,
+                    'H' => self.cur_orientation = Alignment::Horizontal,
+                    'V' => self.cur_orientation = Alignment::Vertical,
+                    ' ' => (),
+                    input => {
+                        self.move_char(input, true);
+                    }
+                };
+                self.ui.draw_orientation(&&self.cur_orientation)?;
             }
             GameState::Attack => {
-                print_and_clear("Attack state".to_string())?;
-                handle_insertship_inputs(&mut self.com_table, &mut self.select_pos)?;
+                // handle_insertship_inputs(&mut self.com_table, &mut self.select_pos)?;
             }
             GameState::Win => todo!(),
             GameState::Loose => todo!(),
         };
+        Ok(())
+    }
+
+    fn move_char(&mut self, input: char, player_table: bool) {
+        match input {
+            'j' => self.select_pos.y += 1,
+            'k' => self.select_pos.y -= 1,
+            'h' => self.select_pos.x -= 2,
+            'l' => self.select_pos.x += 2,
+            _ => (),
+        };
+        let table = match player_table {
+            true => &self.player_table,
+            false => &self.com_table,
+        };
+        table.rect.set_in_boundaries(&mut self.select_pos);
+    }
+
+    // Handle insert new ship
+    fn handle_insert_new_ship(&mut self) -> Result<(), Box<dyn Error>> {
+        let table_pos = match Rect::convert_to_rect_pos(&self.select_pos, &self.player_table.rect) {
+            Some(rect_pos) => rect_pos,
+            None => Vec2::new(0, 0),
+        };
+
+        let res =
+            &self
+                .player_table
+                .insert_ship(ShipType::TorpedoBoat, table_pos, &self.cur_orientation);
+
+        match res {
+            Ok(_) => {}
+            Err(msg) => (),
+        }
         Ok(())
     }
 

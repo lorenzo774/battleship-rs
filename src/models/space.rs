@@ -9,6 +9,7 @@ impl<T> Vec2<T> {
     }
 }
 
+#[derive(Debug, Clone)]
 pub enum Alignment {
     Vertical,
     Horizontal,
