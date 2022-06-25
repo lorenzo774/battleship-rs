@@ -11,7 +11,8 @@
 - <del>Create UI struct</del>
 - <del>Create a ship only if you can in that spot</del>
 - <del>Add the ability to change from vertical to horizontal</del>
-- Change the ships system to be matrix based
+- <del>Change the ships system to be matrix based</del>
+- <del>Create a state machine system</del>
 - Add the ability to change the type of ship to insert in the Insert ships state
 - Fix the touch algorithm
 - Control the amount of ships to insert before the start of the attack state
