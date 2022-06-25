@@ -50,7 +50,6 @@ impl Table {
             Alignment::Vertical => {
                 for i in -1..ship.size() + 1 {
                     for j in -1..2 {
-                        // print_and_clear(format!("i = {}, j = {} yes = {}", i, j, pos.y + i < 0));
                         if pos.y + i < 0 || pos.y + i >= self.size {
                             continue;
                         }
@@ -85,15 +84,15 @@ impl Table {
     /// Insert a new ship into the table by a ship type
     pub fn insert_ship(
         &mut self,
-        ship: Ship,
+        ship: &Ship,
         pos: Vec2<i32>,
         aligment: &Alignment,
-    ) -> Result<bool, String> {
+    ) -> Result<(), String> {
         if self.ship_out_of_boundaries(&ship, &pos, &aligment) {
-            return Ok(false);
+            return Err("Ship out of boundaries".to_string());
         }
         if !self.empty_for_new_ship(&ship, &pos, &aligment) {
-            return Ok(false);
+            return Err("You can't insert a ship here".to_string());
         }
 
         match aligment {
@@ -108,7 +107,7 @@ impl Table {
                 }
             }
         }
-        Ok(true)
+        Ok(())
     }
 
     /// Print the table to the console

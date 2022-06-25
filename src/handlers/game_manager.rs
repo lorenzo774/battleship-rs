@@ -3,17 +3,12 @@ use crossterm::execute;
 use crossterm::terminal::{Clear, ClearType};
 use std::error::Error;
 use std::io::stdout;
-use std::process;
 
 use super::states::game_state::GameState;
 use super::states::insert_ships::InsertShips;
 use super::ui_manager::UI;
 
-use crate::lib::graphics::{clear_screen, print_and_clear, select_char};
-use crate::lib::inputs::get_input;
-use crate::models::rect::Rect;
-use crate::models::ship::Ship;
-use crate::models::space::Alignment;
+use crate::lib::graphics::select_char;
 use crate::models::{space::Vec2, table::Table};
 use crate::settings::*;
 
@@ -32,7 +27,7 @@ impl Game {
             com_table: Table::new(Vec2::new(2, 15), TABLE_SIZE),
             select_pos: Vec2::new(0, 0),
             state: Some(Box::new(InsertShips::new())),
-            ui: UI::new(Vec2::new(40, 0), 10, 10),
+            ui: UI::new(Vec2::new(40, 6), 20, 14),
         }
     }
 
@@ -58,15 +53,14 @@ impl Game {
         self.com_table.draw(false)?;
         select_char(crossterm::style::Color::Yellow, &self.select_pos)?;
 
-        // UI
-        self.ui.draw_title()?;
-
         println!();
         // Handle state
         if let Some(mut s) = self.state.take() {
             s.run(self);
             self.state = Some(s);
         }
+        // Draw title
+        self.ui.draw_msg(0, TITLE.to_string())?;
         Ok(())
     }
 

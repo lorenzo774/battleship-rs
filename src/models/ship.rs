@@ -1,5 +1,8 @@
+use std::hash::Hash;
+
+#[derive(PartialEq, Eq, Hash)]
 pub enum Ship {
-    Aisle,
+    Aisle = 5,
     Battleship,
     Cruiser,
     TorpedoBoat,
@@ -13,6 +16,17 @@ impl Ship {
             Ship::Cruiser => 3,
             Ship::TorpedoBoat => 2,
             Ship::Submarine => 1,
+        }
+    }
+
+    pub fn from_int(int: i32) -> Option<Ship> {
+        match int {
+            1 => Some(Ship::Submarine),
+            2 => Some(Ship::TorpedoBoat),
+            3 => Some(Ship::Cruiser),
+            4 => Some(Ship::Battleship),
+            5 => Some(Ship::Aisle),
+            _ => None,
         }
     }
 }
