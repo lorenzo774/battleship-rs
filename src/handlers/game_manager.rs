@@ -34,7 +34,7 @@ impl Game {
     pub fn start(&mut self) -> Result<(), Box<dyn Error>> {
         // TODO: Reset game
         if let Some(mut s) = self.state.take() {
-            s.init(self);
+            s.init(self)?;
             self.state = Some(s);
         }
         // Clear screen
@@ -56,7 +56,7 @@ impl Game {
         println!();
         // Handle state
         if let Some(mut s) = self.state.take() {
-            s.run(self);
+            s.run(self)?;
             self.state = Some(s.next());
         }
         // Draw title

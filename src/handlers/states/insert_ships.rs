@@ -1,4 +1,4 @@
-use std::{collections::HashMap, process};
+use std::{collections::HashMap, error::Error, process};
 
 use super::attack::AttackState;
 use super::game_state::GameState;
@@ -24,16 +24,17 @@ pub struct InsertShips {
 }
 // State definition
 impl GameState for InsertShips {
-    fn init(&mut self, game: &mut Game) {
+    fn init(&mut self, game: &mut Game) -> Result<(), Box<dyn Error>> {
         game.select_pos = Vec2::new(2, 2);
+        Ok(())
     }
 
-    fn run(&mut self, game: &mut Game) {
-        match get_input().unwrap() {
+    fn run(&mut self, game: &mut Game) -> Result<(), Box<dyn Error>> {
+        match get_input()? {
             // Exit
             'q' => {
-                clear_screen();
-                print_and_clear("Bye 👋\n".to_string());
+                clear_screen()?;
+                print_and_clear("Bye 👋\n".to_string())?;
                 process::exit(0)
             }
             'E' => self.handle_insert_new_ship(game),
@@ -45,10 +46,11 @@ impl GameState for InsertShips {
             input => game.move_char(input, true),
         };
         game.ui
-            .draw_selected_ship(&&self.selected_ship, &&self.cur_orientation);
+            .draw_selected_ship(&&self.selected_ship, &&self.cur_orientation)?;
         game.ui
-            .draw_msg(9, self.ships_left[&self.selected_ship].to_string());
-        game.ui.draw_orientation(&&self.cur_orientation);
+            .draw_msg(9, self.ships_left[&self.selected_ship].to_string())?;
+        game.ui.draw_orientation(&&self.cur_orientation)?;
+        Ok(())
     }
 
     fn next(self: Box<Self>) -> Box<dyn GameState> {
