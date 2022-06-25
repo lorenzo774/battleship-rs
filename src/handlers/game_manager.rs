@@ -57,7 +57,7 @@ impl Game {
         // Handle state
         if let Some(mut s) = self.state.take() {
             s.run(self);
-            self.state = Some(s);
+            self.state = Some(s.next());
         }
         // Draw title
         self.ui.draw_msg(0, TITLE.to_string())?;

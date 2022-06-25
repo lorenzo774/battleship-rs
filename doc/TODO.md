@@ -14,6 +14,6 @@
 - <del>Change the ships system to be matrix based</del>
 - <del>Create a state machine system</del>
 - <del>Add the ability to change the type of ship to insert in the Insert ships state</del>
+- <del>Control the amount of ships to insert before the start of the attack state</del>
 - Refactor the ui manager
 - Add a Result type to GameState functions
-- Control the amount of ships to insert before the start of the attack state

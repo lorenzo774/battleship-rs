@@ -1,5 +1,6 @@
 use std::{collections::HashMap, process};
 
+use super::attack::AttackState;
 use super::game_state::GameState;
 use crate::{
     handlers::game_manager::Game,
@@ -49,6 +50,13 @@ impl GameState for InsertShips {
             .draw_msg(9, self.ships_left[&self.selected_ship].to_string());
         game.ui.draw_orientation(&&self.cur_orientation);
     }
+
+    fn next(self: Box<Self>) -> Box<dyn GameState> {
+        if self.switch_to_attack_state() {
+            return Box::new(AttackState {});
+        }
+        self
+    }
 }
 // Struct methods
 impl InsertShips {
@@ -82,6 +90,10 @@ impl InsertShips {
         }
     }
 
+    fn switch_to_attack_state(&self) -> bool {
+        self.ships_left.values().all(|&x| x <= 0)
+    }
+
     fn handle_insert_new_ship(&mut self, game: &mut Game) {
         if let Some(v) = self.ships_left.get_mut(&self.selected_ship) {
             if *v == 0 {
@@ -103,5 +115,7 @@ impl InsertShips {
                 *v -= 1;
             };
         }
+
+        print_and_clear(format!("{}", self.switch_to_attack_state())).unwrap();
     }
 }
