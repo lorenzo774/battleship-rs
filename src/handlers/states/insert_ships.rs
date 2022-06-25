@@ -53,8 +53,9 @@ impl GameState for InsertShips {
         Ok(())
     }
 
-    fn next(self: Box<Self>) -> Box<dyn GameState> {
-        if self.switch_to_attack_state() {
+    fn next(self: Box<Self>, game: &mut Game) -> Box<dyn GameState> {
+        if self.no_ships_left() {
+            InsertShips::generate_com_ships(game);
             return Box::new(AttackState {});
         }
         self
@@ -92,7 +93,7 @@ impl InsertShips {
         }
     }
 
-    fn switch_to_attack_state(&self) -> bool {
+    fn no_ships_left(&self) -> bool {
         self.ships_left.values().all(|&x| x <= 0)
     }
 
@@ -117,7 +118,7 @@ impl InsertShips {
                 *v -= 1;
             };
         }
-
-        print_and_clear(format!("{}", self.switch_to_attack_state())).unwrap();
     }
+    // Generate ships in random position in the computer table
+    fn generate_com_ships(game: &mut Game) {}
 }

@@ -1,5 +1,7 @@
 use std::error::Error;
 
+use crate::handlers::game_manager::Game;
+
 use super::game_state::GameState;
 
 pub struct AttackState {}
@@ -19,7 +21,7 @@ impl GameState for AttackState {
         todo!()
     }
 
-    fn next(self: Box<Self>) -> Box<dyn GameState> {
+    fn next(self: Box<Self>, game: &mut Game) -> Box<dyn GameState> {
         todo!()
     }
 }
