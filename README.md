@@ -4,8 +4,6 @@
 
 A console version of the battleship game written in rust.
 
-<hr />
-
 ## <b>How it's made</b>
 
 <img src="https://docs.rs/rust-logo-20220403-1.61.0-nightly-6af09d250.svg" align="left" style="height:100px" />
@@ -14,8 +12,6 @@ A console version of the battleship game written in rust.
 <p>
 This project uses the <b>crossterm</b> library, a cross-platform rust library for terminal manipulation.
 </p>
-
-<hr />
 
 ## <b>Instructions</b>
 
