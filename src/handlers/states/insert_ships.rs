@@ -1,4 +1,4 @@
-use std::{collections::HashMap, error::Error, process};
+use std::{collections::HashMap, error::Error, process, thread, time::Duration};
 
 use super::attack::AttackState;
 use super::game_state::GameState;
@@ -10,10 +10,11 @@ use crate::{
     },
     models::{
         rect::Rect,
-        ship::Ship,
+        ship::{self, Ship},
         space::{Alignment, Vec2},
+        table::Table,
     },
-    settings::TABLE_SIZE,
+    settings::{get_ships_left, TABLE_SIZE},
 };
 
 pub struct InsertShips {
@@ -68,13 +69,7 @@ impl InsertShips {
             ship_counter: 1,
             selected_ship: Ship::Aisle,
             cur_orientation: Alignment::Horizontal,
-            ships_left: HashMap::from([
-                (Ship::Aisle, 1),
-                (Ship::Battleship, 2),
-                (Ship::Cruiser, 2),
-                (Ship::TorpedoBoat, 4),
-                (Ship::Submarine, TABLE_SIZE - 9),
-            ]),
+            ships_left: get_ships_left(),
         }
     }
 
@@ -120,5 +115,37 @@ impl InsertShips {
         }
     }
     // Generate ships in random position in the computer table
-    fn generate_com_ships(game: &mut Game) {}
+    fn generate_com_ships(game: &mut Game) {
+        let ships_left = get_ships_left();
+
+        for ship in ships_left.keys() {
+            for _ in 0..ships_left[ship] {
+                InsertShips::gen_random_ship(ship, &mut game.com_table);
+            }
+        }
+    }
+
+    fn gen_random_ship(ship: &Ship, com_table: &mut Table) {
+        loop {
+            let rand_pos = Vec2::new(
+                (rand::random::<u32>() % (TABLE_SIZE - ship.size()) as u32) as i32,
+                (rand::random::<u32>() % (TABLE_SIZE - ship.size()) as u32) as i32,
+            );
+            let rand_aligment = match rand::random::<bool>() {
+                true => Alignment::Horizontal,
+                false => Alignment::Vertical,
+            };
+            // print_and_clear(format!(
+            //     "x = {}, y = {}, ship = {}",
+            //     rand_pos.x,
+            //     rand_pos.y,
+            //     ship.size()
+            // ));
+            if let Err(msg) = com_table.insert_ship(&ship, rand_pos, &rand_aligment) {
+                // thread::sleep(Duration::from_secs(5));
+                continue;
+            }
+            break;
+        }
+    }
 }

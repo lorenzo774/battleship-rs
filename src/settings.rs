@@ -1,4 +1,6 @@
+use crate::models::ship::Ship;
 use crossterm::style::Color;
+use std::collections::HashMap;
 
 //
 // Game constants
@@ -8,6 +10,16 @@ pub const HIT: char = '#';
 pub const STUNK: char = 'X';
 pub const TABLE_SIZE: i32 = 10;
 pub const TITLE: &str = "Battleship-rs";
+
+pub fn get_ships_left() -> HashMap<Ship, i32> {
+    HashMap::from([
+        (Ship::Aisle, 1),
+        (Ship::Battleship, 1),
+        (Ship::Cruiser, 1),
+        (Ship::TorpedoBoat, 1),
+        (Ship::Submarine, TABLE_SIZE - 9),
+    ])
+}
 
 //
 // Utils

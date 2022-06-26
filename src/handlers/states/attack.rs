@@ -1,6 +1,9 @@
-use std::error::Error;
+use std::{
+    error::Error,
+    io::{stdin, stdout},
+};
 
-use crate::handlers::game_manager::Game;
+use crate::{handlers::game_manager::Game, lib::inputs::get_input};
 
 use super::game_state::GameState;
 
@@ -11,17 +14,19 @@ impl GameState for AttackState {
         &mut self,
         game: &mut crate::handlers::game_manager::Game,
     ) -> Result<(), Box<dyn Error>> {
-        todo!()
+        Ok(())
     }
 
     fn run(
         &mut self,
         game: &mut crate::handlers::game_manager::Game,
     ) -> Result<(), Box<dyn Error>> {
-        todo!()
+        let mut ciao = String::new();
+        stdin().read_line(&mut ciao);
+        Ok(())
     }
 
     fn next(self: Box<Self>, game: &mut Game) -> Box<dyn GameState> {
-        todo!()
+        self
     }
 }

@@ -13,9 +13,9 @@ use crate::models::{space::Vec2, table::Table};
 use crate::settings::*;
 
 pub struct Game {
-    com_table: Table,
     state: Option<Box<dyn GameState>>,
 
+    pub com_table: Table,
     pub player_table: Table,
     pub select_pos: Vec2<i32>,
     pub ui: UI,
@@ -50,7 +50,7 @@ impl Game {
         self.player_table.draw(true)?;
         println!();
         println!("Computer");
-        self.com_table.draw(false)?;
+        self.com_table.draw(true)?;
         select_char(crossterm::style::Color::Yellow, &self.select_pos)?;
 
         println!();
