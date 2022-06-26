@@ -3,7 +3,7 @@ use std::{
     io::{stdin, stdout},
 };
 
-use crate::{handlers::game_manager::Game, lib::inputs::get_input};
+use crate::{handlers::game_manager::Game, lib::inputs::get_key};
 
 use super::game_state::GameState;
 

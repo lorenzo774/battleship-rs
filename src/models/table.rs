@@ -13,20 +13,20 @@ use std::io::{stdout, Error};
 use super::rect::Rect;
 
 pub struct Table {
-    pub matrix: Vec<Vec<char>>,
+    pub matrix: Vec<Vec<i8>>,
     pub rect: Rect,
     pub size: i32,
 }
 impl Table {
     /// Generate a new matrix for the table and a ships vector
     pub fn new(pos: Vec2<i32>, size: i32) -> Table {
-        let mut matrix: Vec<Vec<char>> = Vec::new();
+        let mut matrix: Vec<Vec<i8>> = Vec::new();
         let rect = Rect::new(pos, size * 2, size);
 
         for i in 0..size {
             matrix.push(Vec::new());
             for _ in 0..size {
-                matrix[i as usize].push(BG_CHAR);
+                matrix[i as usize].push(0);
             }
         }
 
@@ -56,7 +56,7 @@ impl Table {
                         if pos.x + j < 0 || pos.x + j >= self.size {
                             continue;
                         }
-                        if self.matrix[(pos.y + i) as usize][(pos.x + j) as usize] == SHIP {
+                        if self.matrix[(pos.y + i) as usize][(pos.x + j) as usize] != 0 {
                             return false;
                         }
                     }
@@ -71,7 +71,7 @@ impl Table {
                         if pos.x + i < 0 || pos.x + i >= self.size {
                             continue;
                         }
-                        if self.matrix[((pos.y + j) as usize)][(pos.x + i) as usize] == SHIP {
+                        if self.matrix[((pos.y + j) as usize)][(pos.x + i) as usize] != 0 {
                             return false;
                         }
                     }
@@ -98,12 +98,12 @@ impl Table {
         match aligment {
             Alignment::Vertical => {
                 for i in 0..ship.size() {
-                    self.matrix[pos.y as usize + i as usize][pos.x as usize] = SHIP;
+                    self.matrix[pos.y as usize + i as usize][pos.x as usize] = ship.size() as i8;
                 }
             }
             Alignment::Horizontal => {
                 for i in 0..ship.size() {
-                    self.matrix[pos.y as usize][pos.x as usize + i as usize] = SHIP;
+                    self.matrix[pos.y as usize][pos.x as usize + i as usize] = ship.size() as i8;
                 }
             }
         }
@@ -120,16 +120,21 @@ impl Table {
         for i in 0..self.matrix.len() {
             print_color(format!("{} ", ALPHABET[i]), Color::Green)?;
             for j in 0..self.matrix[i].len() {
-                if !ships && self.matrix[i][j] == SHIP {
-                    print_color("- ".to_string(), Color::Cyan)?;
+                if !ships && self.matrix[i][j] == 0 {
+                    print_color(BG_CHAR.to_string(), Color::Cyan)?;
                     continue;
                 }
                 let color = match self.matrix[i][j] {
-                    SHIP => Color::DarkMagenta,
-                    HIT => GREY,
-                    _ => Color::Cyan,
+                    -1 => GREY,
+                    0 => Color::Cyan,
+                    _ => Color::DarkMagenta,
                 };
-                print_color(format!("{} ", self.matrix[i][j]), color)?;
+                let char = match self.matrix[i][j] {
+                    0 => BG_CHAR,
+                    -1 => HIT,
+                    _ => SHIP,
+                };
+                print_color(format!("{} ", char), color)?;
             }
             println!();
         }

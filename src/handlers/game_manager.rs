@@ -8,6 +8,7 @@ use super::states::game_state::GameState;
 use super::states::insert_ships::InsertShips;
 use super::ui_manager::UI;
 
+use crate::handlers::exit_manager::handle_exit;
 use crate::lib::graphics::select_char;
 use crate::models::{space::Vec2, table::Table};
 use crate::settings::*;
@@ -55,6 +56,7 @@ impl Game {
 
         println!();
         // Handle state
+        handle_exit()?;
         if let Some(mut s) = self.state.take() {
             s.run(self)?;
             self.state = Some(s.next(self));

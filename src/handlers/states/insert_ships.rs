@@ -1,4 +1,4 @@
-use std::{collections::HashMap, error::Error, process, thread, time::Duration};
+use std::{collections::HashMap, error::Error, thread, time::Duration};
 
 use super::attack::AttackState;
 use super::game_state::GameState;
@@ -6,7 +6,7 @@ use crate::{
     handlers::game_manager::Game,
     lib::{
         graphics::{clear_screen, print_and_clear},
-        inputs::get_input,
+        inputs::get_key,
     },
     models::{
         rect::Rect,
@@ -31,21 +31,21 @@ impl GameState for InsertShips {
     }
 
     fn run(&mut self, game: &mut Game) -> Result<(), Box<dyn Error>> {
-        match get_input()? {
-            // Exit
-            'q' => {
-                clear_screen()?;
-                print_and_clear("Bye 👋\n".to_string())?;
-                process::exit(0)
-            }
-            'E' => self.handle_insert_new_ship(game),
-            'H' => self.cur_orientation = Alignment::Horizontal,
-            'V' => self.cur_orientation = Alignment::Vertical,
-            'A' => self.change_selected_ship(-1),
-            'D' => self.change_selected_ship(1),
-            ' ' => (),
-            input => game.move_char(input, true),
-        };
+        // match get_key()? {
+        //     // Exit
+        //     'q' => {
+        //         clear_screen()?;
+        //         print_and_clear("Bye 👋\n".to_string())?;
+        //         process::exit(0)
+        //     }
+        //     'E' => self.handle_insert_new_ship(game),
+        //     'H' => self.cur_orientation = Alignment::Horizontal,
+        //     'V' => self.cur_orientation = Alignment::Vertical,
+        //     'A' => self.change_selected_ship(-1),
+        //     'D' => self.change_selected_ship(1),
+        //     ' ' => (),
+        //     input => game.move_char(input, true),
+        // };
         game.ui
             .draw_selected_ship(&&self.selected_ship, &&self.cur_orientation)?;
         game.ui

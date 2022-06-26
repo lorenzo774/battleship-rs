@@ -17,4 +17,7 @@
 - <del>Control the amount of ships to insert before the start of the attack state</del>
 - <del>Add a Result type to GameState functions</del>
 - <del>Implement generate computer ships function</del>
+- Implement attack state
+- Improve error handling
 - Refactor the ui manager
+- Create a real game loop (input independent)
