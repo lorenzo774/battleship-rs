@@ -10,9 +10,10 @@ mod settings;
 use crossterm::event::{read, Event, KeyCode};
 use handlers::game_manager::Game;
 use lib::inputs::InputReader;
-// tests
+
 mod tests;
 
+// Create a new thread for inputs
 fn create_input_thread(tx: Sender<Option<KeyCode>>) {
     thread::spawn(move || loop {
         let input = match read().unwrap() {
@@ -25,7 +26,10 @@ fn create_input_thread(tx: Sender<Option<KeyCode>>) {
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-    // Create a thread for input with a mpsc channel
+    /*
+        Create a mpsc channel to allow comunication between threads
+        input thread -> main thread
+    */
     let (tx, rx) = mpsc::channel();
     create_input_thread(tx);
 

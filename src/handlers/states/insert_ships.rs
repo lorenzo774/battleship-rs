@@ -138,18 +138,11 @@ impl InsertShips {
                 (rand::random::<u32>() % (TABLE_SIZE - ship.size()) as u32) as i32,
                 (rand::random::<u32>() % (TABLE_SIZE - ship.size()) as u32) as i32,
             );
-            let rand_aligment = match rand::random::<bool>() {
+            let rand_aligment = match rand::random() {
                 true => Alignment::Horizontal,
                 false => Alignment::Vertical,
             };
-            // print_and_clear(format!(
-            //     "x = {}, y = {}, ship = {}",
-            //     rand_pos.x,
-            //     rand_pos.y,
-            //     ship.size()
-            // ));
-            if let Err(msg) = com_table.insert_ship(&ship, rand_pos, &rand_aligment) {
-                // thread::sleep(Duration::from_secs(5));
+            if let Err(_) = com_table.insert_ship(&ship, rand_pos, &rand_aligment) {
                 continue;
             }
             break;
