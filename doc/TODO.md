@@ -17,6 +17,9 @@
 - <del>Control the amount of ships to insert before the start of the attack state</del>
 - <del>Add a Result type to GameState functions</del>
 - <del>Implement generate computer ships function</del>
+- <del>Create a new thread for inputs</del>
+- Fix the terminal blinking issue
+- Change the exit system to avoid repetitions
 - Implement attack state
 - Improve error handling
 - Refactor the ui manager

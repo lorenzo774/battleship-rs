@@ -10,6 +10,7 @@ use super::ui_manager::UI;
 
 use crate::handlers::exit_manager::handle_exit;
 use crate::lib::graphics::select_char;
+use crate::lib::inputs::InputReader;
 use crate::models::{space::Vec2, table::Table};
 use crate::settings::*;
 
@@ -20,15 +21,17 @@ pub struct Game {
     pub player_table: Table,
     pub select_pos: Vec2<i32>,
     pub ui: UI,
+    pub input_reader: InputReader,
 }
 impl Game {
-    pub fn new() -> Game {
+    pub fn new(input_reader: InputReader) -> Game {
         Game {
             player_table: Table::new(Vec2::new(2, 2), TABLE_SIZE),
             com_table: Table::new(Vec2::new(2, 15), TABLE_SIZE),
             select_pos: Vec2::new(0, 0),
             state: Some(Box::new(InsertShips::new())),
             ui: UI::new(Vec2::new(40, 6), 20, 14),
+            input_reader,
         }
     }
 
@@ -55,8 +58,8 @@ impl Game {
         select_char(crossterm::style::Color::Yellow, &self.select_pos)?;
 
         println!();
-        // Handle state
-        handle_exit()?;
+        // TODO: Handle the exit system without clone the code for every state
+        // handle_exit(&self.input_reader)?;
         if let Some(mut s) = self.state.take() {
             s.run(self)?;
             self.state = Some(s.next(self));

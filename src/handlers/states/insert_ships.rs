@@ -1,21 +1,20 @@
-use std::{collections::HashMap, error::Error, thread, time::Duration};
+use std::{collections::HashMap, error::Error, process};
 
 use super::attack::AttackState;
 use super::game_state::GameState;
 use crate::{
     handlers::game_manager::Game,
-    lib::{
-        graphics::{clear_screen, print_and_clear},
-        inputs::get_key,
-    },
+    lib::graphics::{clear_screen, print_and_clear},
     models::{
         rect::Rect,
-        ship::{self, Ship},
+        ship::Ship,
         space::{Alignment, Vec2},
         table::Table,
     },
-    settings::{get_ships_left, TABLE_SIZE},
+    settings::{get_ships_left, MOV_KEYS, TABLE_SIZE},
 };
+
+use crossterm::event::KeyCode;
 
 pub struct InsertShips {
     ship_counter: i32,
@@ -31,21 +30,29 @@ impl GameState for InsertShips {
     }
 
     fn run(&mut self, game: &mut Game) -> Result<(), Box<dyn Error>> {
-        // match get_key()? {
-        //     // Exit
-        //     'q' => {
-        //         clear_screen()?;
-        //         print_and_clear("Bye 👋\n".to_string())?;
-        //         process::exit(0)
-        //     }
-        //     'E' => self.handle_insert_new_ship(game),
-        //     'H' => self.cur_orientation = Alignment::Horizontal,
-        //     'V' => self.cur_orientation = Alignment::Vertical,
-        //     'A' => self.change_selected_ship(-1),
-        //     'D' => self.change_selected_ship(1),
-        //     ' ' => (),
-        //     input => game.move_char(input, true),
-        // };
+        if let Some(key) = game.input_reader.get_key()? {
+            match key {
+                // TODO: Change for DRY
+                KeyCode::Esc | KeyCode::Char('q') => {
+                    clear_screen()?;
+                    print_and_clear("Bye 👋\n".to_string())?;
+                    process::exit(0)
+                }
+                KeyCode::Enter => self.handle_insert_new_ship(game),
+                KeyCode::Char(value) => match value {
+                    'w' => self.cur_orientation = Alignment::Vertical,
+                    's' => self.cur_orientation = Alignment::Horizontal,
+                    'a' => self.change_selected_ship(-1),
+                    'd' => self.change_selected_ship(1),
+                    other_key => {
+                        if MOV_KEYS.contains(&other_key) {
+                            game.move_char(other_key, true);
+                        }
+                    }
+                },
+                _ => (),
+            }
+        }
         game.ui
             .draw_selected_ship(&&self.selected_ship, &&self.cur_orientation)?;
         game.ui
