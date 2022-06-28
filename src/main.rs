@@ -18,8 +18,7 @@ fn create_input_thread(tx: Sender<Option<KeyCode>>) {
     thread::spawn(move || loop {
         let input = match read().unwrap() {
             Event::Key(key) => Some(key.code),
-            Event::Mouse(_) => None,
-            Event::Resize(_, _) => None,
+            _ => None,
         };
         tx.send(input).unwrap();
     });

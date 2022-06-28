@@ -1,15 +1,6 @@
 use crossterm::event::KeyCode;
 use std::sync::mpsc::Receiver;
 
-// Blocking read
-// pub fn get_key() -> crossterm::Result<Option<KeyCode>> {
-//     match read()? {
-//         Event::Key(key) => Ok(Some(key.code)),
-//         Event::Mouse(_) => Ok(None),
-//         Event::Resize(_, _) => Ok(None),
-//     }
-// }
-
 pub struct InputReader {
     rx: Receiver<Option<KeyCode>>,
 }
