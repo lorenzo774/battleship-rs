@@ -6,7 +6,6 @@ use crate::{
     handlers::game_manager::Game,
     lib::graphics::{clear_screen, print_and_clear},
     models::{
-        rect::Rect,
         ship::Ship,
         space::{Alignment, Vec2},
         table::Table,
@@ -25,11 +24,17 @@ pub struct InsertShips {
 // State definition
 impl GameState for InsertShips {
     fn init(&mut self, game: &mut Game) -> Result<(), Box<dyn Error>> {
-        game.select_pos = Vec2::new(2, 2);
+        game.select_pos = Vec2::new(0, 0);
+        game.ui
+            .draw_selected_ship(&&self.selected_ship, &&self.cur_orientation)?;
         Ok(())
     }
 
     fn run(&mut self, game: &mut Game) -> Result<(), Box<dyn Error>> {
+        // Render player table
+        println!("Player");
+        game.player_table.draw(true, Some(&game.select_pos))?;
+
         if let Some(key) = game.input_reader.get_key()? {
             match key {
                 // TODO: Change for DRY
@@ -40,10 +45,10 @@ impl GameState for InsertShips {
                 }
                 KeyCode::Enter => self.handle_insert_new_ship(game),
                 KeyCode::Char(value) => match value {
-                    'w' => self.cur_orientation = Alignment::Vertical,
-                    's' => self.cur_orientation = Alignment::Horizontal,
-                    'a' => self.change_selected_ship(-1),
-                    'd' => self.change_selected_ship(1),
+                    'w' => self.change_orientation(Alignment::Vertical, game),
+                    's' => self.change_orientation(Alignment::Horizontal, game),
+                    'a' => self.change_selected_ship(-1, game),
+                    'd' => self.change_selected_ship(1, game),
                     other_key => {
                         if MOV_KEYS.contains(&other_key) {
                             game.move_char(other_key, true);
@@ -54,9 +59,7 @@ impl GameState for InsertShips {
             }
         }
         game.ui
-            .draw_selected_ship(&&self.selected_ship, &&self.cur_orientation)?;
-        game.ui
-            .draw_msg(9, self.ships_left[&self.selected_ship].to_string())?;
+            .draw_msg(10, self.ships_left[&self.selected_ship].to_string())?;
         game.ui.draw_orientation(&&self.cur_orientation)?;
         Ok(())
     }
@@ -64,23 +67,25 @@ impl GameState for InsertShips {
     fn next(self: Box<Self>, game: &mut Game) -> Box<dyn GameState> {
         if self.no_ships_left() {
             InsertShips::generate_com_ships(game);
-            return Box::new(AttackState {});
+            game.ui.clear();
+            let mut new_state = AttackState {};
+            new_state.init(game).unwrap();
+            return Box::new(new_state);
         }
         self
     }
 }
-// Struct methods
 impl InsertShips {
     pub fn new() -> InsertShips {
         InsertShips {
-            ship_counter: 1,
+            ship_counter: 5,
             selected_ship: Ship::Aisle,
             cur_orientation: Alignment::Horizontal,
             ships_left: get_ships_left(),
         }
     }
 
-    fn change_selected_ship(&mut self, change: i32) {
+    fn change_selected_ship(&mut self, change: i32, game: &Game) {
         self.ship_counter += change;
 
         if self.ship_counter > 5 {
@@ -92,7 +97,17 @@ impl InsertShips {
 
         if let Some(v) = Ship::from_int(self.ship_counter) {
             self.selected_ship = v;
+            game.ui
+                .draw_selected_ship(&&self.selected_ship, &&self.cur_orientation)
+                .unwrap();
         }
+    }
+
+    fn change_orientation(&mut self, aligment: Alignment, game: &Game) {
+        self.cur_orientation = aligment;
+        game.ui
+            .draw_selected_ship(&&self.selected_ship, &&self.cur_orientation)
+            .unwrap();
     }
 
     fn no_ships_left(&self) -> bool {
@@ -106,14 +121,11 @@ impl InsertShips {
             }
         };
 
-        let table_pos = match Rect::convert_to_rect_pos(&game.select_pos, &game.player_table.rect) {
-            Some(rect_pos) => rect_pos,
-            None => Vec2::new(0, 0),
-        };
-
-        let res =
-            game.player_table
-                .insert_ship(&self.selected_ship, table_pos, &self.cur_orientation);
+        let res = game.player_table.insert_ship(
+            &self.selected_ship,
+            &game.select_pos,
+            &self.cur_orientation,
+        );
 
         if let Ok(_) = res {
             if let Some(v) = self.ships_left.get_mut(&self.selected_ship) {
@@ -121,6 +133,7 @@ impl InsertShips {
             };
         }
     }
+
     // Generate ships in random position in the computer table
     fn generate_com_ships(game: &mut Game) {
         let ships_left = get_ships_left();
@@ -142,7 +155,7 @@ impl InsertShips {
                 true => Alignment::Horizontal,
                 false => Alignment::Vertical,
             };
-            if let Err(_) = com_table.insert_ship(&ship, rand_pos, &rand_aligment) {
+            if let Err(_) = com_table.insert_ship(&ship, &rand_pos, &rand_aligment) {
                 continue;
             }
             break;

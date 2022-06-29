@@ -41,18 +41,6 @@ pub fn print_color_at(pos: &Vec2<i32>, msg: String, color: Color) -> Result<(), 
     Ok(())
 }
 
-pub fn print_clear_color_at(pos: &Vec2<i32>, msg: String, color: Color) -> Result<(), Error> {
-    execute!(
-        stdout(),
-        MoveTo(pos.x as u16, pos.y as u16),
-        SetForegroundColor(color),
-        Clear(ClearType::CurrentLine),
-        Print(msg),
-        ResetColor
-    )?;
-    Ok(())
-}
-
 pub fn clear_screen() -> Result<(), Error> {
     execute!(stdout(), MoveTo(0, 0), Clear(ClearType::All))?;
     Ok(())

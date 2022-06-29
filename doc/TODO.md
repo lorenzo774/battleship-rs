@@ -18,9 +18,10 @@
 - <del>Add a Result type to GameState functions</del>
 - <del>Implement generate computer ships function</del>
 - <del>Create a new thread for inputs</del>
-- Fix the terminal blinking issue
+- <del>Fix the terminal blinking issue</del>
+- <del>Create a real game loop (input independent)</del>
+- Add default implementations for game_state functions
 - Change the exit system to avoid repetitions
 - Implement attack state
 - Improve error handling
 - Refactor the ui manager
-- Create a real game loop (input independent)

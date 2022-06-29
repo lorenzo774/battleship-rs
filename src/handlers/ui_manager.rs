@@ -1,13 +1,17 @@
-use crate::lib::graphics::{print_clear_color_at, print_color_at};
+use crate::lib::graphics::print_color_at;
 use crate::models::rect::Rect;
 use crate::models::ship::Ship;
 use crate::models::space::{Alignment, Vec2};
 use crate::settings::SHIP;
 
+use crossterm::cursor::MoveTo;
+use crossterm::execute;
 use crossterm::style::Color;
+use crossterm::terminal::{Clear, ClearType};
 use std::error::Error;
+use std::io::stdout;
 
-/// UI struct
+/// Handle UI for msg
 pub struct UI {
     rect: Rect,
 }
@@ -18,12 +22,23 @@ impl UI {
         }
     }
 
+    pub fn clear(&self) {
+        for i in 0..self.rect.height {
+            execute!(
+                stdout(),
+                MoveTo(self.rect.pos.x as u16, (self.rect.pos.y + i) as u16),
+                Clear(ClearType::UntilNewLine)
+            )
+            .unwrap();
+        }
+    }
+
     pub fn draw_msg(&self, y: i32, msg: String) -> Result<(), Box<dyn Error>> {
         let draw_pos = Vec2::new(
             self.rect.pos.x + (self.rect.width / 2) - (msg.len() as i32 / 2),
             self.rect.pos.y + y,
         );
-        print_clear_color_at(&draw_pos, msg.to_string(), Color::White)?;
+        print_color_at(&draw_pos, msg.to_string(), Color::White)?;
         Ok(())
     }
 
@@ -37,10 +52,10 @@ impl UI {
                 match alignment {
                     Alignment::Vertical => Vec2::new(
                         rect.pos.x + (rect.width / 2),
-                        rect.pos.y + (rect.height / 5),
+                        rect.pos.y + (rect.height / 5) - 1,
                     ),
                     Alignment::Horizontal => {
-                        Vec2::new(rect.pos.x + 5, rect.pos.y + (rect.height / 5) + 3)
+                        Vec2::new(rect.pos.x + 5, rect.pos.y + (rect.height / 5) + 2)
                     }
                 }
             });
@@ -95,10 +110,9 @@ impl UI {
         };
         let draw_pos = Vec2::new(
             self.rect.pos.x + (self.rect.width / 2) - (msg.len() as i32 / 2),
-            self.rect.pos.y + self.rect.height,
+            self.rect.pos.y + self.rect.height - 2,
         );
-        print_clear_color_at(&draw_pos, msg.to_string(), Color::Red)?;
-
+        print_color_at(&draw_pos, msg.to_string(), Color::Red)?;
         Ok(())
     }
 }

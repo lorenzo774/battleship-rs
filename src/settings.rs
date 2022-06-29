@@ -1,7 +1,6 @@
 use crate::models::ship::Ship;
 use crossterm::style::Color;
 use std::collections::HashMap;
-use std::time::Duration;
 
 //
 // Game constants
