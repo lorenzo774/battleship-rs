@@ -23,6 +23,7 @@
 - Add default implementations for game_state functions
 - Create a widget system for text and timers
 - Change the exit system to avoid repetitions
+- Fix computer ships gen
 - Implement attack state
 - Improve error handling
 - Refactor the ui manager
