@@ -21,6 +21,7 @@
 - <del>Fix the terminal blinking issue</del>
 - <del>Create a real game loop (input independent)</del>
 - Add default implementations for game_state functions
+- Create a widget system for text and timers
 - Change the exit system to avoid repetitions
 - Implement attack state
 - Improve error handling

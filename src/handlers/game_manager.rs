@@ -5,13 +5,13 @@ use std::io::stdout;
 
 use super::states::game_state::GameState;
 use super::states::insert_ships::InsertShips;
-use super::ui_manager::UI;
 
 // use crate::handlers::exit_manager::handle_exit;
 use crate::lib::graphics::clear_screen;
 use crate::lib::inputs::InputReader;
 use crate::models::{space::Vec2, table::Table};
 use crate::settings::*;
+use crate::ui::ui_manager::UI;
 
 pub struct Game {
     state: Option<Box<dyn GameState>>,

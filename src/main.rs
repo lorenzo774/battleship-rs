@@ -6,6 +6,7 @@ mod handlers;
 mod lib;
 mod models;
 mod settings;
+mod ui;
 
 use crossterm::event::{read, Event, KeyCode};
 use handlers::game_manager::Game;
