@@ -30,14 +30,23 @@ pub fn print_and_clear(msg: String) -> Result<(), Error> {
     Ok(())
 }
 
-pub fn print_color_at(pos: &Vec2<i32>, msg: String, color: Color) -> Result<(), Error> {
-    execute!(
-        stdout(),
-        MoveTo(pos.x as u16, pos.y as u16),
-        SetForegroundColor(color),
-        Print(msg),
-        ResetColor
-    )?;
+pub fn print_color_at(pos: &Vec2<i32>, msg: String, color: Option<Color>) -> Result<(), Error> {
+    if let Some(c) = color {
+        execute!(
+            stdout(),
+            MoveTo(pos.x as u16, pos.y as u16),
+            SetForegroundColor(c),
+            Print(msg),
+            ResetColor
+        )?;
+    } else {
+        execute!(
+            stdout(),
+            MoveTo(pos.x as u16, pos.y as u16),
+            Print(msg),
+            ResetColor
+        )?;
+    }
     Ok(())
 }
 

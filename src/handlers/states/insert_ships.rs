@@ -25,15 +25,14 @@ pub struct InsertShips {
 impl GameState for InsertShips {
     fn init(&mut self, game: &mut Game) -> Result<(), Box<dyn Error>> {
         game.select_pos = Vec2::new(0, 0);
-        game.ui
-            .draw_selected_ship(&&self.selected_ship, &&self.cur_orientation)?;
+        // game.ui
+        //     .draw_selected_ship(&&self.selected_ship, &&self.cur_orientation)?;
         Ok(())
     }
 
     fn run(&mut self, game: &mut Game) -> Result<(), Box<dyn Error>> {
         // Render player table
-        println!("Player");
-        game.player_table.draw(true, Some(&game.select_pos))?;
+        // game.player_table.draw(true, Some(&game.select_pos))?;
 
         if let Some(key) = game.input_reader.get_key()? {
             match key {
@@ -58,16 +57,16 @@ impl GameState for InsertShips {
                 _ => (),
             }
         }
-        game.ui
-            .draw_msg(10, self.ships_left[&self.selected_ship].to_string())?;
-        game.ui.draw_orientation(&&self.cur_orientation)?;
+        // game.ui
+        //     .draw_msg(10, self.ships_left[&self.selected_ship].to_string())?;
+        // game.ui.draw_orientation(&&self.cur_orientation)?;
         Ok(())
     }
 
     fn next(self: Box<Self>, game: &mut Game) -> Box<dyn GameState> {
         if self.no_ships_left() {
             InsertShips::generate_com_ships(game);
-            game.ui.clear();
+            // game.ui.clear();
             let mut new_state = AttackState {};
             new_state.init(game).unwrap();
             return Box::new(new_state);
@@ -97,17 +96,17 @@ impl InsertShips {
 
         if let Some(v) = Ship::from_int(self.ship_counter) {
             self.selected_ship = v;
-            game.ui
-                .draw_selected_ship(&&self.selected_ship, &&self.cur_orientation)
-                .unwrap();
+            // game.ui
+            //     .draw_selected_ship(&&self.selected_ship, &&self.cur_orientation)
+            //     .unwrap();
         }
     }
 
     fn change_orientation(&mut self, aligment: Alignment, game: &Game) {
         self.cur_orientation = aligment;
-        game.ui
-            .draw_selected_ship(&&self.selected_ship, &&self.cur_orientation)
-            .unwrap();
+        // game.ui
+        //     .draw_selected_ship(&&self.selected_ship, &&self.cur_orientation)
+        //     .unwrap();
     }
 
     fn no_ships_left(&self) -> bool {

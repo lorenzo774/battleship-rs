@@ -1,14 +1,11 @@
 use crate::{
-    lib::graphics::print_color,
+    lib::surface::Surface,
     models::ship::Ship,
     models::space::{Alignment, Vec2},
     settings::{ALPHABET, BG_CHAR, GREY, HIT, SHIP, STUNK},
 };
-use crossterm::{
-    execute,
-    style::{Color, Print},
-};
-use std::io::{stdout, Error};
+use crossterm::style::Color;
+use std::io::Error;
 
 use super::rect::Rect;
 
@@ -111,23 +108,34 @@ impl Table {
     }
 
     /// Print the table to the console
-    pub fn draw(&mut self, ships: bool, select_pos: Option<&Vec2<i32>>) -> Result<(), Error> {
-        execute!(stdout(), Print("x "))?;
+    pub fn get_surface(&mut self, ships: bool) -> Result<Surface, Error> {
+        let mut surface = Surface::new(
+            self.rect.pos.clone(),
+            ((self.size * 2) + 1, (self.size * 2) + 3),
+        );
+        surface
+            .texture
+            .change_m_pixel(0, 0, Some(String::from("X ")), Some(Color::Black));
         for k in 1..self.matrix.len() + 1 {
-            print_color(format!("{} ", k), Color::Blue)?;
+            surface.texture.change_m_pixel(
+                k as i32 * 2,
+                0,
+                Some(format!("{} ", k)),
+                Some(Color::Blue),
+            );
         }
-        println!();
         for i in 0..self.matrix.len() {
-            print_color(format!("{} ", ALPHABET[i]), Color::Green)?;
+            surface
+                .texture
+                .change_pixel(0, i as i32 + 1, Some(ALPHABET[i]), Some(Color::Green));
             for j in 0..self.matrix[i].len() {
-                if let Some(s_pos) = select_pos {
-                    if i as i32 == s_pos.y && j as i32 == s_pos.x {
-                        print_color(format!("{} ", SHIP), Color::Yellow)?;
-                        continue;
-                    }
-                }
                 if !ships {
-                    print_color(format!("{} ", BG_CHAR), Color::Cyan)?;
+                    surface.texture.change_pixel(
+                        (j as i32 + 1) * 2,
+                        i as i32 + 1,
+                        Some(BG_CHAR),
+                        Some(Color::Cyan),
+                    );
                     continue;
                 }
                 let color = match self.matrix[i][j] {
@@ -140,11 +148,14 @@ impl Table {
                     -1 => HIT,
                     _ => SHIP,
                 };
-                print_color(format!("{} ", char), color)?;
+                surface.texture.change_pixel(
+                    (j as i32 + 1) * 2,
+                    i as i32 + 1,
+                    Some(char),
+                    Some(color),
+                );
             }
-            println!();
         }
-        println!();
-        Ok(())
+        Ok(surface)
     }
 }

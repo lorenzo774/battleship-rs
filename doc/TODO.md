@@ -20,8 +20,10 @@
 - <del>Create a new thread for inputs</del>
 - <del>Fix the terminal blinking issue</del>
 - <del>Create a real game loop (input independent)</del>
-- Add default implementations for game_state functions
+- <del>Change the rendering system to a surface based system</del>
+- Change the UI system to be surface based
 - Create a widget system for text and timers
+- Add default implementations for game_state functions
 - Change the exit system to avoid repetitions
 - Fix computer ships gen
 - Implement attack state

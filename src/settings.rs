@@ -4,6 +4,7 @@ use std::collections::HashMap;
 
 //
 // Game constants
+pub const CANVAS_SIZE: (i32, i32) = (50, 50);
 pub const BG_CHAR: char = '-';
 pub const SHIP: char = '■';
 pub const HIT: char = '#';

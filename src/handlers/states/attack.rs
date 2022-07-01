@@ -30,12 +30,6 @@ impl GameState for AttackState {
         &mut self,
         game: &mut crate::handlers::game_manager::Game,
     ) -> Result<(), Box<dyn Error>> {
-        // Render tables
-        println!("Player");
-        game.player_table.draw(true, None)?;
-        println!("Computer");
-        game.com_table.draw(false, Some(&game.select_pos))?;
-
         if let Some(key) = game.input_reader.get_key()? {
             match key {
                 // TODO: Change for DRY
